@@ -1,12 +1,12 @@
 import telebot
 
-bot = telebot.TeleBot('6345291697:AAEboN8wJsc-kwO-V_DVQ9ZHMwc8VDiHw8o')
+bot = telebot.TeleBot('6655848781:AAH5PwaU9X57MIVLc4rEsETRPBUb439lb3s')
 
 from telebot import types
 
 
 @bot.message_handler(commands=['start'])
-def startBot(message):
+def startBot(message):      # начало работы бота
     first_mess = f"<b>{message.from_user.first_name} {message.from_user.last_name}</b>, привет!\nХочешь использовать нашего бота?"
     markup = types.InlineKeyboardMarkup()
     button_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')
@@ -14,7 +14,7 @@ def startBot(message):
     bot.send_message(message.chat.id, first_mess, parse_mode='html', reply_markup=markup)
 
 
-@bot.callback_query_handler(func=lambda call: True)
+@bot.callback_query_handler(func=lambda call: True)         # начало регистрации
 def response(function_call):
     if function_call.message:
         if function_call.data == "yes":
@@ -28,10 +28,9 @@ def response(function_call):
 name = '';
 surname = '';
 age = 0;
-type_person = '';
 
 
-@bot.message_handler(content_types=['text'])
+@bot.message_handler(content_types=['text'])        # регистрация
 def start(message):
     if message.text == '/reg':
         bot.send_message(message.from_user.id, "Как тебя зовут?");
@@ -40,46 +39,40 @@ def start(message):
     # bot.send_message(message.from_user.id, 'Напиши /reg');
 
 
-def get_name(message):  # получаем фамилию
+def get_name(message):          # получаем имя
     global name;
     name = message.text;
     bot.send_message(message.from_user.id, 'Какая у тебя фамилия?');
     bot.register_next_step_handler(message, get_surname);
 
 
-def get_surname(message):
+def get_surname(message):       # получаем фамилию
     global surname;
     surname = message.text;
     bot.send_message(message.from_user.id, 'Сколько тебе лет?');
     bot.register_next_step_handler(message, get_age);
 
 
-def get_age(message):
+def get_age(message):       # получаем возраст
     global age;
     while age == 0:  # проверяем что возраст изменился
         try:
             age = int(message.text)  # проверяем, что возраст введен корректно
         except Exception:
             bot.send_message(message.from_user.id, 'Цифрами, пожалуйста');
-    bot.send_message(message.from_user.id, 'Спасибо за регистрацию. Продолжим?');
-    bot.register_next_step_handler(message, get_type_person);
+    bot.send_message(message.from_user.id, 'Спасибо за регистрацию.Выбери к какому предмету ты хочешь подготовиться\n1 - /sport\n2 - /itam\n3 - /bioengineers\n4 - /ai_knowledge')
+    bot.register_next_step_handler(message, links)
 
 
-def get_type_person(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True)
-    button1 = types.KeyboardButton("Школьник")
-    button2 = types.KeyboardButton("Студент")
-    markup.add(button1, button2)
-    msg = bot.send_message(message.chat.id, "Привет! Кто ты?", reply_markup=markup)
-    bot.register_next_step_handler(msg, process_callback)
-
-
-def process_callback(message):
-    if message.text == "Школьник":
-        markup = types.InlineKeyboardMarkup(row_width=2)
-        button1 = types.InlineKeyboardButton("Назад", callback_data="back")
-        button2 = types.InlineKeyboardButton("Далее", callback_data="next")
-        markup.add(button1, button2)
+def links(message):         #ссылки на чаты
+    if message.text == '/sport':
+        bot.send_message(message.from_user.id, "@sport_misis");
+    elif message.text == '/itam':
+        bot.send_message(message.from_user.id, "@itatmisis");
+    elif message.text == '/bio':
+        bot.send_message(message.from_user.id, "@bioengineers_MISIS");
+    elif message.text == '/ai_knowledge':
+        bot.send_message(message.from_user.id, "https://t.me/aiknowledgeclub");
 
 
 bot.infinity_polling()
